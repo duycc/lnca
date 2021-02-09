@@ -7,8 +7,9 @@
 #include <unistd.h>
 
 #include "ngx_c_conf.h"  // 和配置文件处理相关的类
-#include "ngx_func.h"    // 各种函数声明
-#include "ngx_macro.h"   // 各种宏定义
+#include "ngx_c_socket.h"
+#include "ngx_func.h"   // 各种函数声明
+#include "ngx_macro.h"  // 各种宏定义
 
 // 程序退出释放资源
 static void freeresource();
@@ -26,6 +27,9 @@ pid_t ngx_pid;          // 当前进程的pid
 pid_t ngx_parent;       // 父进程的pid
 int ngx_process;        // 进程类型 master worker
 sig_atomic_t ngx_reap;  // 标记子进程状态
+
+// socket相关
+CSocekt g_socekt;
 
 int main(int argc, char *const *argv)
 {
@@ -64,6 +68,11 @@ int main(int argc, char *const *argv)
     ngx_log_init();
 
     if (ngx_init_signals() != 0) {
+        exitcode = 1;
+        goto lblexit;
+    }
+
+    if (g_socekt.Initialize() == false) {
         exitcode = 1;
         goto lblexit;
     }
